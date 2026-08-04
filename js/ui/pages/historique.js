@@ -11,7 +11,7 @@ import { STATUT, ecartFinal, ecoule, nombrePasses, nombreValides } from '../../d
 import { calculerRecompense } from '../../domaine/recompense.js';
 import { resume } from '../../domaine/stats.js';
 
-export function pageHistorique({ store, router, finances, solde }) {
+export function pageHistorique({ store, router, finances, solde, majPastilles }) {
   const racine = div('page page-historique');
 
   function peindre() {
@@ -61,9 +61,10 @@ export function pageHistorique({ store, router, finances, solde }) {
         montant: calcul.total,
       }).then(() => solde?.rafraichir());
       annoncer(`${calcul.total} ✦ ajoutés à votre solde.`, 'succes');
+      majPastilles?.();
       // On laisse le geste se jouer avant de redessiner la liste, sinon la
-      // carte disparaîtrait sous les particules.
-      setTimeout(peindre, 750);
+      // carte disparaîtrait sous les éclats en vol.
+      setTimeout(peindre, 1100);
     } catch (erreur) {
       annoncer(erreur.message, 'erreur');
       boutonCollecte.disabled = false;
@@ -88,7 +89,7 @@ export function pageHistorique({ store, router, finances, solde }) {
     const collectable = terminee && !seance.recompense?.collectee && calcul.total > 0;
     const boutonCollecte = collectable
       ? bouton(`Collecter ${calcul.total} ✦`, () => collecter(seance, boutonCollecte), {
-        class: 'bouton bouton-primaire',
+        class: 'bouton bouton-collecte bouton-collecte-compact',
       })
       : null;
 

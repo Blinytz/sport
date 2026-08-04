@@ -1047,23 +1047,54 @@ button.pastille:active { transform: scale(.93); }
 
 /* ---- Célébration d'une collecte ---- */
 
-/* Particules projetées entre le bouton et le solde. `position: fixed` parce
- * qu'elles traversent l'écran entier, hors de tout conteneur défilant. */
-.particule {
+/* Éclats en vol. `position: fixed` parce qu'ils traversent l'écran entier,
+ * hors de tout conteneur défilant, et `filter` pour qu'ils rayonnent
+ * réellement au lieu d'être des caractères posés à plat. */
+.eclat-vol {
   position: fixed;
   z-index: 200;
   pointer-events: none;
   line-height: 1;
-  transition: transform 720ms cubic-bezier(.25, .6, .3, 1), opacity 720ms ease;
+  will-change: transform, opacity;
+  filter: drop-shadow(0 0 6px currentColor) drop-shadow(0 0 14px currentColor);
 }
 
+/* Onde de choc dorée : la carte relâche ce qu'elle retenait. */
 @keyframes eclatCristallin {
-  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--or) 55%, transparent); }
-  60% { box-shadow: 0 0 0 22px color-mix(in srgb, var(--or) 0%, transparent); }
-  100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--or) 0%, transparent); }
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--or) 65%, transparent),
+                0 0 26px 0 color-mix(in srgb, var(--or) 45%, transparent);
+  }
+  55% {
+    box-shadow: 0 0 0 26px color-mix(in srgb, var(--or) 0%, transparent),
+                0 0 40px 6px color-mix(in srgb, var(--or) 30%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--or) 0%, transparent),
+                0 0 0 0 color-mix(in srgb, var(--or) 0%, transparent);
+  }
 }
 
-.eclat-joue { animation: eclatCristallin 800ms ease-out; }
+.eclat-joue { animation: eclatCristallin 900ms cubic-bezier(.2, .7, .3, 1); }
+
+/* Le solde aspire pendant tout le vol, puis tressaille à chaque éclat reçu. */
+@keyframes soldeAttire {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--or) 0%, transparent); }
+  50% { box-shadow: 0 0 22px 3px color-mix(in srgb, var(--or) 45%, transparent); }
+}
+
+.solde-attire {
+  animation: soldeAttire 900ms ease-in-out infinite;
+  border-color: var(--or);
+}
+
+@keyframes soldeAbsorbe {
+  40% { transform: scale(1.18); }
+  70% { transform: scale(.97); }
+  100% { transform: scale(1); }
+}
+
+.solde-absorbe { animation: soldeAbsorbe 260ms cubic-bezier(.3, .9, .3, 1); }
 
 @keyframes soldeFlash {
   30% { transform: scale(1.22); }
@@ -1071,6 +1102,105 @@ button.pastille:active { transform: scale(.93); }
 }
 
 .solde-flash { animation: soldeFlash 900ms cubic-bezier(.3, .8, .3, 1); }
+
+/* ---- Bouton de collecte : il doit donner envie ---- */
+
+.bouton-collecte {
+  position: relative;
+  overflow: hidden;
+  min-height: 62px;
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: -.01em;
+  border: 0;
+  color: #1a1200;
+  background: linear-gradient(135deg, #ffd77a 0%, #ffc043 38%, #ff9f1c 72%, #ffcf5c 100%);
+  background-size: 180% 180%;
+  box-shadow:
+    0 6px 22px color-mix(in srgb, var(--or) 42%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, .55);
+  animation: respireOr 2.6s ease-in-out infinite;
+}
+
+@keyframes respireOr {
+  0%, 100% {
+    background-position: 0% 50%;
+    box-shadow: 0 6px 22px color-mix(in srgb, var(--or) 38%, transparent),
+                inset 0 1px 0 rgba(255, 255, 255, .55);
+  }
+  50% {
+    background-position: 100% 50%;
+    box-shadow: 0 8px 30px color-mix(in srgb, var(--or) 58%, transparent),
+                inset 0 1px 0 rgba(255, 255, 255, .7);
+  }
+}
+
+/* Reflet qui balaie le bouton, comme sur un métal poli. */
+.bouton-collecte::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 -60%;
+  width: 45%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .75), transparent);
+  transform: skewX(-18deg);
+  animation: reflet 2.8s ease-in-out infinite;
+}
+
+@keyframes reflet {
+  0%, 55% { left: -60%; }
+  100% { left: 130%; }
+}
+
+/* Dans une liste, le même or mais à la taille d'une ligne. */
+.bouton-collecte-compact {
+  min-height: 44px;
+  font-size: .95rem;
+  padding: 10px 16px;
+}
+
+.bouton-collecte:disabled {
+  animation: none;
+  opacity: .55;
+}
+
+.bouton-collecte:disabled::after { display: none; }
+
+/* Le bandeau « Éclats en attente » brille du même or. */
+.bandeau-eclats .bandeau-montant { animation: pulseOr 2.4s ease-in-out infinite; }
+
+@keyframes pulseOr {
+  0%, 100% { filter: drop-shadow(0 0 0 transparent); }
+  50% { filter: drop-shadow(0 0 10px color-mix(in srgb, var(--or) 60%, transparent)); }
+}
+
+/* ---- Pastille de l'onglet Historique ---- */
+
+#navigation a { position: relative; }
+
+.pastille-onglet {
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(2px);
+  min-width: 17px;
+  height: 17px;
+  padding: 0 5px;
+  border-radius: var(--rayon-pastille);
+  background: var(--degrade-or);
+  color: #1a1200;
+  font-size: .62rem;
+  font-weight: 800;
+  line-height: 17px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 0 0 2px var(--fond-carte), 0 0 12px color-mix(in srgb, var(--or) 60%, transparent);
+  animation: apparaitPastille 320ms cubic-bezier(.2, .9, .3, 1);
+}
+
+@keyframes apparaitPastille {
+  from { transform: translateX(2px) scale(0); }
+  to { transform: translateX(2px) scale(1); }
+}
 
 .eclats-montant {
   font-size: 1.8rem;

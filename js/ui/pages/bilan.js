@@ -10,7 +10,7 @@ import { formaterDuree } from '../../domaine/duree.js';
 import { STATUT, detailEtapes, ecartFinal, ecoule, nombrePasses, nombreValides } from '../../domaine/seance.js';
 import { calculerRecompense, detailRecompense } from '../../domaine/recompense.js';
 
-export function pageBilan({ store, router, finances, solde }, { id }) {
+export function pageBilan({ store, router, finances, solde, majPastilles }, { id }) {
   const seance = store.seance(id);
   if (!seance) {
     router.aller('#/accueil');
@@ -38,7 +38,8 @@ export function pageBilan({ store, router, finances, solde }, { id }) {
         montant: verse.total,
       }).then(() => solde?.rafraichir());
       annoncer(`${verse.total} ✦ ajoutés à votre solde.`, 'succes');
-      setTimeout(peindreEclats, 700);
+      majPastilles?.();
+      setTimeout(peindreEclats, 1100);
     } catch (erreur) {
       annoncer(erreur.message, 'erreur');
       boutonCollecte.disabled = false;

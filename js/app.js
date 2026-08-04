@@ -46,7 +46,9 @@ const veille = (() => {
 const conteneur = document.getElementById('vue');
 const router = createRouter({ conteneur, surChangement: majNavigation });
 const solde = createSolde({ registre, finances, router });
-const contexte = { store, registre, finances, router, veille, solde };
+const contexte = {
+  store, registre, finances, router, veille, solde, majPastilles,
+};
 
 router.ajouter('/accueil', () => pageAccueil(contexte));
 router.ajouter('/seance', () => pageSeance(contexte));
@@ -99,6 +101,37 @@ function majNavigation(motif) {
     const onglet = ONGLETS.find((o) => o.hash === lien.getAttribute('href'));
     lien.classList.toggle('actif', onglet.motifs.includes(motif));
   }
+  majPastilles();
+}
+
+/**
+ * Pastille des Éclats en attente sur l'onglet Historique. Elle disparaît dès
+ * que tout est ramassé : c'est le seul rappel que l'application se permet, et
+ * il doit s'éteindre de lui-même.
+ */
+function majPastilles() {
+  const lien = document.querySelector('#navigation a[href="#/historique"]');
+  if (!lien) return;
+
+  const enAttente = finances.eclatsACollecter();
+  const existante = lien.querySelector('.pastille-onglet');
+
+  if (!enAttente) {
+    existante?.remove();
+    lien.removeAttribute('aria-label');
+    return;
+  }
+
+  const texte = enAttente > 999 ? '999+' : String(enAttente);
+  if (existante) {
+    existante.textContent = texte;
+  } else {
+    const pastille = document.createElement('span');
+    pastille.className = 'pastille-onglet';
+    pastille.textContent = texte;
+    lien.append(pastille);
+  }
+  lien.setAttribute('aria-label', `Historique, ${enAttente} Éclats à collecter`);
 }
 
 function construireNavigation() {

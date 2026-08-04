@@ -36,10 +36,15 @@ tant qu'ils ne sont pas collectés : ni dans le solde, ni dans le registre
 commun. L'accueil et l'historique affichent ce qui attend, le solde de
 l'en-tête ne bouge pas.
 
+Une **pastille dorée** sur l'onglet Historique rappelle le montant qui attend.
+Elle s'éteint d'elle-même dès que tout est ramassé.
+
 Collecter est un geste explicite, depuis le bilan de la séance ou depuis
 l'historique. Au clic, l'application écrit d'abord au registre, puis marque la
-séance. La récompense se met alors à voler vers le solde, qui compte jusqu'à sa
-nouvelle valeur. Ce chiffre d'arrivée vient de la réponse du serveur, pas d'une
+séance. La carte relâche alors une onde dorée, les Éclats s'en extraient, montent
+et plongent en arc vers le solde de l'en-tête. Chacun le fait tressaillir en
+arrivant et pousse le compteur d'un cran : le total ne saute pas, il se remplit
+éclat par éclat. Le chiffre d'arrivée vient de la réponse du serveur, pas d'une
 addition locale : ce que vous voyez est le solde réel.
 
 Une collecte est **idempotente** : deux clics, une coupure réseau ou un
