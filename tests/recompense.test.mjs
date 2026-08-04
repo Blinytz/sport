@@ -116,15 +116,25 @@ test('le retard ne retire jamais d’Éclats', () => {
   assert.equal(calcul.total, 40);
 });
 
-test('un exercice passé annule le bonus malgré une avance énorme', () => {
+test('sauter un exercice ne gonfle plus l’avance retenue', () => {
+  // Quatre exercices de 3 min bouclés en 10 s chacun, le troisième sauté.
+  // Temps réel 40 s, temps crédité 3 × 3 min : l'avance vaut 8 min 20, et non
+  // 11 min 20 comme si le saut avait rapporté ses trois minutes.
   const seance = courir(seanceDe([180, 180, 180, 180]), 10_000, [2]);
   const calcul = calculerRecompense(seance);
 
-  assert.ok(calcul.avance > 600_000);
-  assert.equal(calcul.bonus, 0, 'sauter fabriquerait de l’avance payée');
+  assert.equal(calcul.avance, 500_000);
+  assert.equal(calcul.forfait, 30, 'trois validés sur quatre');
+});
+
+test('un exercice passé annule le bonus, même avec une avance réelle', () => {
+  const seance = courir(seanceDe([180, 180, 180, 180]), 10_000, [2]);
+  const calcul = calculerRecompense(seance);
+
+  assert.ok(calcul.avance > 0, 'l’avance restante est légitime');
+  assert.equal(calcul.bonus, 0);
   assert.equal(calcul.palier, null);
   assert.equal(calcul.motif, 'bonus_annule_exercice_passe');
-  assert.equal(calcul.forfait, 30);
 });
 
 test('chaque session a son propre forfait', () => {

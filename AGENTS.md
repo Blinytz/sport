@@ -29,15 +29,21 @@
    forfait ne revalorise jamais une séance déjà courue.
 9. **Le palier atteint le plus haut s'applique, et lui seul.** Les paliers ne
    s'additionnent pas.
-10. **Deux garde-fous, une seule raison.** Bâcler ne doit pas rapporter plus que
-    faire : le forfait est versé au prorata des exercices validés, et un seul
-    exercice passé annule tout bonus. Le retard, lui, ne retire jamais rien.
-11. **Une récompense se collecte.** Aucun crédit automatique dans le solde.
-12. **Les mouvements d'Éclats sont idempotents** : clé stable par séance, écrite
+10. **Un exercice passé ne crédite aucun temps théorique**, et il est retiré du
+    temps prévu de la séance. C'est la règle la plus facile à casser par
+    inadvertance : compter son temps alloué transformerait chaque saut en
+    avance offerte, donc en Éclats volés. Le prix d'un saut, ce sont les
+    secondes réellement dépensées à le faire.
+11. **Bâcler ne doit pas rapporter plus que faire.** Deux garde-fous en plus du
+    précédent : le forfait est versé au prorata des exercices validés, et un
+    seul exercice passé annule tout bonus. Le retard, lui, ne retire jamais
+    rien.
+12. **Une récompense se collecte.** Aucun crédit automatique dans le solde.
+13. **Les mouvements d'Éclats sont idempotents** : clé stable par séance, écrite
     au registre avant l'état local.
-13. **Aucun score composite** dans les statistiques. Des mesures brutes,
+14. **Aucun score composite** dans les statistiques. Des mesures brutes,
     rattachables aux séances qui les ont produites.
-14. **Aucun tiret typographique visible.** Les signes « — », « – » et « − » sont
+15. **Aucun tiret typographique visible.** Les signes « — », « – » et « − » sont
     proscrits de l'interface et des textes. Remplacer selon le contexte :
     valeur manquante par « ? » ou un mot, séparateur par « · », « : » ou une
     virgule, intervalle par un trait d'union simple. C'est pour cela que l'écart

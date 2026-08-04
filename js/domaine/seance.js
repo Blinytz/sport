@@ -60,11 +60,32 @@ export function ecoule(seance, maintenant) {
   return Math.max(0, reference - seance.debut - seance.pauseCumulee - pauseCourante);
 }
 
-/** Temps théorique cumulé des `nombre` premiers exercices, en millisecondes. */
+/**
+ * Temps théorique CRÉDITÉ par les `nombre` premières étapes.
+ *
+ * Un exercice passé ne crédite rien. Sans cette règle, sauter un exercice de
+ * trois minutes en cinq secondes offrirait presque trois minutes d'avance : on
+ * gagnerait du temps, et donc des Éclats, en travaillant moins.
+ */
 export function theoriqueCumule(seance, nombre) {
-  return seance.exercices
+  return seance.etapes
     .slice(0, Math.max(0, nombre))
-    .reduce((total, e) => total + e.dureeSecondes, 0) * 1000;
+    .filter((etape) => etape.statut === ETAPE.VALIDE)
+    .reduce((total, etape) => total + (seance.exercices[etape.index]?.dureeSecondes || 0), 0) * 1000;
+}
+
+/**
+ * Temps théorique de la séance entière, amputé des exercices déjà passés.
+ *
+ * C'est la contrepartie de la règle ci-dessus : passer un exercice raccourcit
+ * la séance prévue au lieu de laisser un crédit de temps à récupérer.
+ */
+export function theoriqueProjete(seance) {
+  const passes = new Set(
+    seance.etapes.filter((e) => e.statut === ETAPE.PASSE).map((e) => e.index),
+  );
+  return seance.exercices
+    .reduce((total, exercice, i) => total + (passes.has(i) ? 0 : exercice.dureeSecondes), 0) * 1000;
 }
 
 export function indexCourant(seance) {
@@ -95,7 +116,7 @@ export function ecart(seance) {
 /** Écart mesuré au moment exact où la séance s'est close. */
 export function ecartFinal(seance, maintenant = seance.fin) {
   if (seance.statut === STATUT.TERMINEE) {
-    return ecoule(seance, maintenant) - theoriqueCumule(seance, seance.exercices.length);
+    return ecoule(seance, maintenant) - theoriqueCumule(seance, seance.etapes.length);
   }
   return ecart(seance);
 }
@@ -130,8 +151,8 @@ export function vueSeance(seance, maintenant) {
     depasse: !close && surExercice > dureeMs,
     progression: dureeMs > 0 ? Math.min(1, surExercice / dureeMs) : 0,
     ecart: close ? ecartFinal(seance, maintenant) : ecart(seance),
-    theoriqueTotal: theoriqueCumule(seance, total),
-    restantTheorique: Math.max(0, theoriqueCumule(seance, total) - temps),
+    theoriqueTotal: theoriqueProjete(seance),
+    restantTheorique: Math.max(0, theoriqueProjete(seance) - temps),
     statutsEtapes: seance.exercices.map((_, i) => seance.etapes[i]?.statut || null),
   };
 }
@@ -226,11 +247,15 @@ export function detailEtapes(seance) {
     const exercice = seance.exercices[etape.index];
     const duree = etape.a - precedent;
     precedent = etape.a;
+    // Un exercice passé ne crédite aucun temps : les secondes réellement
+    // dépensées à le sauter comptent donc entièrement comme du retard.
+    const credite = etape.statut === ETAPE.VALIDE ? exercice.dureeSecondes * 1000 : 0;
     return {
       ...etape,
       exercice,
       duree,
-      ecartExercice: duree - exercice.dureeSecondes * 1000,
+      credite,
+      ecartExercice: duree - credite,
     };
   });
 }

@@ -176,17 +176,74 @@ test('une séance close refuse toute nouvelle transition', () => {
   assert.throws(() => basculerPause(seance, T0 + 20_000), /terminée/);
 });
 
-test('theoriqueCumule additionne les durées des exercices passés', () => {
-  const seance = lancer([180, 60, 120]);
+test('theoriqueCumule additionne les durées des exercices validés', () => {
+  let seance = lancer([180, 60, 120]);
   assert.equal(theoriqueCumule(seance, 0), 0);
+
+  seance = valider(seance, T0 + 10_000);
+  seance = valider(seance, T0 + 20_000);
   assert.equal(theoriqueCumule(seance, 2), 240_000);
+
+  seance = valider(seance, T0 + 30_000);
   assert.equal(theoriqueCumule(seance, 3), 360_000);
+});
+
+test('un exercice passé ne crédite aucun temps théorique', () => {
+  let seance = lancer([180, 180, 180]);
+  seance = valider(seance, T0 + 10_000);
+  seance = passer(seance, T0 + 15_000);
+  seance = valider(seance, T0 + 25_000);
+
+  assert.equal(theoriqueCumule(seance, 3), 360_000, 'deux validés sur trois');
+});
+
+test('sauter un exercice ne fabrique pas d’avance', () => {
+  // Deux séances identiques, sauf que la seconde saute le deuxième exercice
+  // en cinq secondes au lieu de le faire.
+  let faite = lancer([180, 180, 180]);
+  faite = valider(faite, T0 + 180_000);
+  faite = valider(faite, T0 + 360_000);
+  faite = valider(faite, T0 + 540_000);
+
+  let sautee = lancer([180, 180, 180]);
+  sautee = valider(sautee, T0 + 180_000);
+  sautee = passer(sautee, T0 + 185_000);
+  sautee = valider(sautee, T0 + 365_000);
+
+  assert.equal(ecartFinal(faite), 0, 'séance complète menée pile à l’heure');
+  assert.equal(
+    ecartFinal(sautee), 5_000,
+    'sauter ne rapporte aucune avance : seules les secondes dépensées comptent',
+  );
+});
+
+test('le temps théorique projeté est amputé des exercices passés', () => {
+  let seance = lancer([180, 180, 180]);
+  assert.equal(vueSeance(seance, T0).theoriqueTotal, 540_000);
+
+  seance = passer(seance, T0 + 5_000);
+  assert.equal(
+    vueSeance(seance, T0 + 5_000).theoriqueTotal, 360_000,
+    'la séance prévue raccourcit au lieu de laisser un crédit à récupérer',
+  );
 });
 
 test('la vue expose le restant théorique de toute la séance', () => {
   const vue = vueSeance(lancer([180, 180]), T0 + 60_000);
   assert.equal(vue.theoriqueTotal, 360_000);
   assert.equal(vue.restantTheorique, 300_000);
+});
+
+test('le détail marque le temps crédité par un exercice passé', () => {
+  let seance = lancer([180, 180]);
+  seance = passer(seance, T0 + 5_000);
+  seance = valider(seance, T0 + 185_000);
+
+  const detail = detailEtapes(seance);
+  assert.equal(detail[0].credite, 0);
+  assert.equal(detail[0].ecartExercice, 5_000, 'les secondes du saut sont du retard');
+  assert.equal(detail[1].credite, 180_000);
+  assert.equal(detail[1].ecartExercice, 0);
 });
 
 test('detailEtapes donne le temps réellement passé sur chaque exercice', () => {

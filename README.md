@@ -48,9 +48,13 @@ Les **paliers** sont des seuils d'avance sur le temps théorique, par exemple
 2 min → 5 ✦, 5 min → 12 ✦, 10 min → 25 ✦. Le palier atteint le plus haut
 s'applique, **et lui seul** : ils ne s'additionnent pas.
 
-Un seul exercice passé **annule tout bonus**. Sauter raccourcit le temps réel,
-donc fabrique de l'avance : cette avance-là ne se paie pas. Le retard, lui, ne
-retire jamais rien.
+**Passer un exercice ne fait gagner aucun temps.** Un exercice sauté ne crédite
+pas son temps théorique, et la séance prévue raccourcit d'autant. Sauter une
+planche de 3 minutes en 5 secondes coûte donc 5 secondes de retard, au lieu de
+rapporter presque 3 minutes d'avance. Par sécurité, un seul exercice passé
+**annule aussi tout bonus**.
+
+Le retard, lui, ne retire jamais rien.
 
 Une séance **fige le barème de sa session à son lancement** : relever un forfait
 ne revalorise pas après coup une séance déjà courue.
