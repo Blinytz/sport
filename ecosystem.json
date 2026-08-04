@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "appId": "sport",
+  "displayName": "Sport",
+  "description": "Séances de sport chronométrées : un compte à rebours par exercice, l'avance ou le retard sur le temps théorique, et des Éclats à la séance terminée.",
+  "lifecycle": "construction",
+  "ownership": {
+    "audience": "single-user",
+    "repositoryVisibility": "public",
+    "repository": "Blinytz/sport"
+  },
+  "data": {
+    "storage": [
+      "localStorage"
+    ],
+    "exportAvailable": true,
+    "productionMutationAllowed": false
+  },
+  "eclats": {
+    "mode": "shared",
+    "ledger": "canonical",
+    "balanceMigration": "not-planned"
+  },
+  "commands": {
+    "install": null,
+    "dev": "python -m http.server 4323",
+    "test": "node --test",
+    "build": null,
+    "lint": null
+  },
+  "integration": {
+    "contractVersion": 1,
+    "status": "connected",
+    "adapter": "js/eclats-sport.js"
+  }
+}
