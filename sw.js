@@ -8,7 +8,7 @@
  * Incrémenter `CACHE` à chaque changement de la liste des fichiers.
  */
 
-const CACHE = 'sport-v4';
+const CACHE = 'sport-v5';
 
 const FICHIERS = [
   './',
@@ -32,8 +32,10 @@ const FICHIERS = [
   './js/domaine/stats.js',
   './js/ui/dom.js',
   './js/ui/composants.js',
+  './js/ui/celebration.js',
   './js/ui/graphiques.js',
   './js/ui/icones.js',
+  './js/ui/solde.js',
   './js/ui/pages/accueil.js',
   './js/ui/pages/seance.js',
   './js/ui/pages/sessions.js',

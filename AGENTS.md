@@ -38,7 +38,10 @@
     précédent : le forfait est versé au prorata des exercices validés, et un
     seul exercice passé annule tout bonus. Le retard, lui, ne retire jamais
     rien.
-12. **Une récompense se collecte.** Aucun crédit automatique dans le solde.
+12. **Une récompense se collecte.** Aucun crédit automatique dans le solde. Le
+    geste mérite d'être fêté, c'est le seul endroit où l'application s'autorise
+    du spectacle ; mais le solde affiché à la fin du compteur vient de la
+    réponse du registre, jamais d'une addition locale.
 13. **Les mouvements d'Éclats sont idempotents** : clé stable par séance, écrite
     au registre avant l'état local.
 14. **Aucun score composite** dans les statistiques. Des mesures brutes,

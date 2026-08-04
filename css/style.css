@@ -97,12 +97,69 @@ h3 { font-size: .95rem; }
 p { margin: 0; }
 ol, ul { margin: 0; padding: 0; list-style: none; }
 
+/* ---- En-tête et solde permanent ---- */
+
+#entete {
+  position: sticky;
+  top: 0;
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px var(--marge);
+  padding-top: calc(10px + env(safe-area-inset-top));
+  background: var(--fond-vitre);
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  border-bottom: 1px solid var(--bordure);
+}
+
+#entete[hidden] { display: none; }
+
+.entete-titre {
+  font-weight: 800;
+  font-size: .95rem;
+  letter-spacing: .01em;
+  color: var(--texte-doux);
+}
+
+/* Cible de l'animation de collecte : elle doit rester visible en défilant. */
+.solde-jeton {
+  appearance: none;
+  border: 1px solid color-mix(in srgb, var(--or) 38%, transparent);
+  background: color-mix(in srgb, var(--or) 14%, transparent);
+  color: var(--or);
+  border-radius: var(--rayon-pastille);
+  padding: 6px 15px;
+  font: inherit;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  min-height: 36px;
+  transition: transform var(--transition);
+}
+
+.solde-jeton:active { transform: scale(.95); }
+
+.solde-deconnecte {
+  border-color: var(--bordure-vive);
+  background: transparent;
+  color: var(--texte-faible);
+  font-weight: 650;
+}
+
+#solde-valeur { display: inline-block; }
+
 #vue {
   padding: var(--marge);
   padding-bottom: calc(84px + env(safe-area-inset-bottom));
   max-width: 760px;
   margin: 0 auto;
 }
+
+/* Sans en-tête, la séance récupère la marge haute pour son propre bandeau. */
+body.sans-entete #vue { padding-top: 0; }
 
 .page { display: flex; flex-direction: column; gap: 20px; }
 
@@ -987,6 +1044,33 @@ button.pastille:active { transform: scale(.93); }
 }
 
 .eclats-collectes { display: flex; align-items: baseline; gap: 12px; color: var(--texte-doux); flex-wrap: wrap; }
+
+/* ---- Célébration d'une collecte ---- */
+
+/* Particules projetées entre le bouton et le solde. `position: fixed` parce
+ * qu'elles traversent l'écran entier, hors de tout conteneur défilant. */
+.particule {
+  position: fixed;
+  z-index: 200;
+  pointer-events: none;
+  line-height: 1;
+  transition: transform 720ms cubic-bezier(.25, .6, .3, 1), opacity 720ms ease;
+}
+
+@keyframes eclatCristallin {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--or) 55%, transparent); }
+  60% { box-shadow: 0 0 0 22px color-mix(in srgb, var(--or) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--or) 0%, transparent); }
+}
+
+.eclat-joue { animation: eclatCristallin 800ms ease-out; }
+
+@keyframes soldeFlash {
+  30% { transform: scale(1.22); }
+  60% { transform: scale(.98); }
+}
+
+.solde-flash { animation: soldeFlash 900ms cubic-bezier(.3, .8, .3, 1); }
 
 .eclats-montant {
   font-size: 1.8rem;

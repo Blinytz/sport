@@ -4,12 +4,13 @@
 // calcul avant le bouton, pour qu'un montant ne tombe pas du ciel.
 
 import { annoncer, bouton, div, el, formaterDate, span, titre } from '../dom.js';
+import { celebrerCollecte } from '../celebration.js';
 import { ecartAffiche, pastilles } from '../composants.js';
 import { formaterDuree } from '../../domaine/duree.js';
 import { STATUT, detailEtapes, ecartFinal, ecoule, nombrePasses, nombreValides } from '../../domaine/seance.js';
 import { calculerRecompense, detailRecompense } from '../../domaine/recompense.js';
 
-export function pageBilan({ store, router, finances }, { id }) {
+export function pageBilan({ store, router, finances, solde }, { id }) {
   const seance = store.seance(id);
   if (!seance) {
     router.aller('#/accueil');
@@ -26,9 +27,18 @@ export function pageBilan({ store, router, finances }, { id }) {
     boutonCollecte.disabled = true;
     boutonCollecte.textContent = 'Collecte…';
     try {
-      const { calcul: verse } = await finances.collecter(seance.id);
+      const { calcul: verse, seance: collectee } = await finances.collecter(seance.id);
+      // Le solde d'arrivée vient de la réponse du registre, pas d'une addition
+      // locale : c'est le vrai solde qui s'affiche à la fin du compteur.
+      celebrerCollecte({
+        depuis: boutonCollecte,
+        carte: zoneEclats.closest('.bloc'),
+        soldeAvant: solde?.connu(),
+        soldeApres: store.mouvementPour(collectee.id)?.soldeApres,
+        montant: verse.total,
+      }).then(() => solde?.rafraichir());
       annoncer(`${verse.total} ✦ ajoutés à votre solde.`, 'succes');
-      peindreEclats();
+      setTimeout(peindreEclats, 700);
     } catch (erreur) {
       annoncer(erreur.message, 'erreur');
       boutonCollecte.disabled = false;

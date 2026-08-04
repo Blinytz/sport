@@ -29,6 +29,23 @@ des notes. L'enregistrement est immédiat.
 **Gagner des Éclats.** Chaque session décide de ce qu'elle rapporte. Le gain se
 collecte explicitement ; rien n'entre dans le solde tout seul.
 
+## La collecte
+
+Une séance terminée met ses Éclats **en attente**. Ils n'existent nulle part
+tant qu'ils ne sont pas collectés : ni dans le solde, ni dans le registre
+commun. L'accueil et l'historique affichent ce qui attend, le solde de
+l'en-tête ne bouge pas.
+
+Collecter est un geste explicite, depuis le bilan de la séance ou depuis
+l'historique. Au clic, l'application écrit d'abord au registre, puis marque la
+séance. La récompense se met alors à voler vers le solde, qui compte jusqu'à sa
+nouvelle valeur. Ce chiffre d'arrivée vient de la réponse du serveur, pas d'une
+addition locale : ce que vous voyez est le solde réel.
+
+Une collecte est **idempotente** : deux clics, une coupure réseau ou un
+rechargement rejouent la même écriture au lieu d'en créer une seconde. Hors
+connexion, rien n'est écrit ni promis, et le bouton redevient cliquable.
+
 **Voir sa progression.** Un onglet Statistiques en quatre volets : régularité
 (calendrier, séries, jours et semaines), progression (courbes d'écart et de
 durée, tendance, records), exercices (équilibre musculaire, temps moyen par

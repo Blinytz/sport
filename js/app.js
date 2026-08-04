@@ -18,6 +18,7 @@ import { pageHistorique } from './ui/pages/historique.js';
 import { pageStatistiques } from './ui/pages/statistiques.js';
 import { pageReglages, appliquerTheme } from './ui/pages/reglages.js';
 import { ICONES } from './ui/icones.js';
+import { createSolde } from './ui/solde.js';
 
 const store = createStore();
 const registre = createRegistre();
@@ -44,7 +45,8 @@ const veille = (() => {
 
 const conteneur = document.getElementById('vue');
 const router = createRouter({ conteneur, surChangement: majNavigation });
-const contexte = { store, registre, finances, router, veille };
+const solde = createSolde({ registre, finances, router });
+const contexte = { store, registre, finances, router, veille, solde };
 
 router.ajouter('/accueil', () => pageAccueil(contexte));
 router.ajouter('/seance', () => pageSeance(contexte));
@@ -87,8 +89,12 @@ const ONGLETS = [
 
 function majNavigation(motif) {
   const barre = document.getElementById('navigation');
-  // La séance occupe tout l'écran : la barre disparaîtrait sous le pouce.
-  barre.hidden = motif === '/seance';
+  // La séance occupe tout l'écran : la barre disparaîtrait sous le pouce, et
+  // le solde n'a rien à faire au milieu d'un compte à rebours.
+  const pendantSeance = motif === '/seance';
+  barre.hidden = pendantSeance;
+  document.getElementById('entete').hidden = pendantSeance;
+  document.body.classList.toggle('sans-entete', pendantSeance);
   for (const lien of barre.querySelectorAll('a')) {
     const onglet = ONGLETS.find((o) => o.hash === lien.getAttribute('href'));
     lien.classList.toggle('actif', onglet.motifs.includes(motif));
@@ -108,6 +114,7 @@ function construireNavigation() {
 appliquerTheme(store.reglages().theme);
 construireNavigation();
 router.demarrer();
+solde.rafraichir();
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

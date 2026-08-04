@@ -5,12 +5,13 @@
 
 import { annoncer, bouton, confirmer, div, el, formaterDate, span, titre } from '../dom.js';
 import { ecartAffiche, vide } from '../composants.js';
+import { celebrerCollecte } from '../celebration.js';
 import { formaterDuree } from '../../domaine/duree.js';
 import { STATUT, ecartFinal, ecoule, nombrePasses, nombreValides } from '../../domaine/seance.js';
 import { calculerRecompense } from '../../domaine/recompense.js';
 import { resume } from '../../domaine/stats.js';
 
-export function pageHistorique({ store, router, finances }) {
+export function pageHistorique({ store, router, finances, solde }) {
   const racine = div('page page-historique');
 
   function peindre() {
@@ -49,13 +50,24 @@ export function pageHistorique({ store, router, finances }) {
 
   async function collecter(seance, boutonCollecte) {
     boutonCollecte.disabled = true;
+    boutonCollecte.textContent = 'Collecte…';
     try {
       const { calcul } = await finances.collecter(seance.id);
+      celebrerCollecte({
+        depuis: boutonCollecte,
+        carte: boutonCollecte.closest('.carte-seance'),
+        soldeAvant: solde?.connu(),
+        soldeApres: store.mouvementPour(seance.id)?.soldeApres,
+        montant: calcul.total,
+      }).then(() => solde?.rafraichir());
       annoncer(`${calcul.total} ✦ ajoutés à votre solde.`, 'succes');
-      peindre();
+      // On laisse le geste se jouer avant de redessiner la liste, sinon la
+      // carte disparaîtrait sous les particules.
+      setTimeout(peindre, 750);
     } catch (erreur) {
       annoncer(erreur.message, 'erreur');
       boutonCollecte.disabled = false;
+      boutonCollecte.textContent = `Collecter ${calculerRecompense(seance, store.reglages().recompenseDefaut).total} ✦`;
     }
   }
 
