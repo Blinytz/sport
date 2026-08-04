@@ -97,7 +97,7 @@ function ongletRegularite({ historique, chiffres }) {
 
   return [
     div('grille-mesures', [
-      mesure('Série en cours', serie.enCours ? `${serie.enCours} j` : '—',
+      mesure('Série en cours', serie.enCours ? `${serie.enCours} j` : 'aucune',
         serie.enCours ? 'mesure-accent' : null),
       mesure('Record de série', `${serie.record} j`),
       mesure('Dernière séance', serie.joursDepuis === 0 ? "Aujourd'hui"
@@ -117,7 +117,7 @@ function ongletRegularite({ historique, chiffres }) {
     semaines.length > 1 ? bloc('Séances par semaine', [
       histogramme(semaines.map((s) => ({
         valeur: s.seances,
-        titre: `Semaine du ${new Date(s.debut).toLocaleDateString('fr-FR')} — ${s.seances} séance(s)`,
+        titre: `Semaine du ${new Date(s.debut).toLocaleDateString('fr-FR')} : ${s.seances} séance(s)`,
       }))),
       div('legende-graphique', [
         span('', `Il y a ${semaines.length} semaines`),
@@ -129,7 +129,7 @@ function ongletRegularite({ historique, chiffres }) {
       barres(jours.map((j) => ({
         libelle: j.nom,
         valeur: j.seances,
-        texte: j.seances ? String(j.seances) : '—',
+        texte: j.seances ? String(j.seances) : '0',
       }))),
     ], 'Les jours où vous vous entraînez réellement.'),
 
@@ -260,7 +260,7 @@ function ongletContenu({ historique, etiquettes }) {
           e.nom,
           String(e.valides),
           formaterDuree(e.tempsMoyen),
-          e.valides ? `${Math.round(e.tauxDepassement * 100)} %` : '—',
+          e.valides ? `${Math.round(e.tauxDepassement * 100)} %` : '?',
         ]),
       ),
     ], 'Le temps réellement passé, repos compris.'),
@@ -296,7 +296,7 @@ function ongletRythme({ historique, secours, chiffres }) {
     bloc('Où le temps se perd', [
       histogramme(rythme.map((r) => ({
         valeur: r.ecartMoyen,
-        titre: `${r.libelle} de la séance — ${r.ecartMoyen > 0 ? 'retard' : 'avance'} moyen de ${formaterDuree(r.ecartMoyen)}`,
+        titre: `${r.libelle} de la séance : ${r.ecartMoyen > 0 ? 'retard' : 'avance'} moyen de ${formaterDuree(r.ecartMoyen)}`,
       })), { signe: true, classe: 'histogramme-ecart' }),
       div('legende-graphique', [span('', 'Début de séance'), span('', 'Fin de séance')]),
     ], 'Écart moyen par tranche de séance. Vers le haut, on traîne ; vers le bas, on avance.'),
@@ -326,7 +326,7 @@ function ongletRythme({ historique, secours, chiffres }) {
     ]) : null,
 
     mois.length > 1 ? bloc('Éclats par mois', [
-      histogramme(mois.map((m) => ({ valeur: m.eclats, titre: `${moisLisible(m.cle)} — ${m.eclats} ✦` }))),
+      histogramme(mois.map((m) => ({ valeur: m.eclats, titre: `${moisLisible(m.cle)} : ${m.eclats} ✦` }))),
       div('legende-graphique', [
         span('', moisLisible(mois[0].cle)),
         span('', moisLisible(mois[mois.length - 1].cle)),

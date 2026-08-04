@@ -275,7 +275,7 @@ export function pageReglages({ store, registre, finances }) {
       zone.replaceChildren(
         div('registre-connecte', [
           span('', registre.utilisateur()?.email || 'Connecté'),
-          span('solde', solde == null ? '—' : `${solde} ✦`),
+          span('solde', solde == null ? '?' : `${solde} ✦`),
         ]),
         bouton('Se déconnecter', () => {
           registre.deconnexion();

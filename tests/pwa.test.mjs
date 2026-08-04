@@ -100,6 +100,33 @@ test('l’adaptateur déclaré dans le manifeste existe', async () => {
   await assert.doesNotReject(() => readFile(new URL(eco.integration.adapter, racine)));
 });
 
+/**
+ * Règle du propriétaire : aucun tiret typographique dans ce qui s'affiche.
+ * Les commentaires de code ne sont pas visibles et restent libres, on les
+ * retire donc avant de contrôler.
+ */
+test('aucun tiret typographique dans le contenu visible', async () => {
+  const interdits = /[—–−]/;
+
+  for (const module of await modulesJs()) {
+    const source = await lire(module.replace('./', ''));
+    const sansCommentaires = source
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .split('\n')
+      .map((ligne) => ligne.replace(/(^|\s)\/\/.*$/, '$1'))
+      .join('\n');
+
+    const fautives = sansCommentaires.split('\n')
+      .map((ligne, i) => [i + 1, ligne])
+      .filter(([, ligne]) => interdits.test(ligne));
+
+    assert.deepEqual(fautives, [], `${module} : tiret typographique visible`);
+  }
+
+  const html = await lire('index.html');
+  assert.ok(!interdits.test(html), 'index.html');
+});
+
 test('aucun module n’est orphelin : tout est atteignable depuis app.js', async () => {
   const sources = new Map();
   for (const module of await modulesJs()) {

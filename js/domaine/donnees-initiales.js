@@ -499,7 +499,7 @@ export const SESSIONS_INITIALES = [
         "musclesSecondaires": [
           "biceps"
         ],
-        "notes": "Tu te penches en avant à environ 45°, dos plat, une main en appui sur un genou ou une surface stable. Tu tires la KB depuis le sol jusqu'à la hanche en gardant le coude proche du corps. \nL'idée c'est de penser à \"amener le coude vers le plafond\" plutôt que \"lever la KB\". 20–24 kg pour toi."
+        "notes": "Tu te penches en avant à environ 45°, dos plat, une main en appui sur un genou ou une surface stable. Tu tires la KB depuis le sol jusqu'à la hanche en gardant le coude proche du corps. \nL'idée c'est de penser à \"amener le coude vers le plafond\" plutôt que \"lever la KB\". 20-24 kg pour toi."
       },
       {
         "nom": "Planches latérales",

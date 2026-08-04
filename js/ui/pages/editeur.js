@@ -252,7 +252,7 @@ export function pageEditeur({ store, router }, { id }) {
         span('apercu-gain-montant', `${forfait + (meilleur?.eclats || 0)} ✦`),
         span('apercu-gain-detail', meilleur
           ? `au maximum : ${forfait} ✦ de forfait + ${meilleur.eclats} ✦ au palier ${meilleur.minutes} min`
-          : `${forfait} ✦ — aucun palier d’avance défini`),
+          : `${forfait} ✦ · aucun palier d’avance défini`),
       );
     }
 
@@ -323,7 +323,7 @@ export function pageEditeur({ store, router }, { id }) {
         zone,
         el('p', {
           class: 'aide',
-          texte: 'Le palier atteint le plus haut s’applique, et lui seul — ils ne '
+          texte: 'Le palier atteint le plus haut s’applique, et lui seul : ils ne '
             + 's’additionnent pas. Un seul exercice passé annule tout bonus, sans '
             + 'quoi sauter des exercices fabriquerait de l’avance payée.',
         }),

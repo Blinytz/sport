@@ -436,7 +436,7 @@ export function rythmeInterne(historique, tranches = 5) {
 
   return seaux.map((s, i) => ({
     tranche: i,
-    libelle: `${Math.round((i / tranches) * 100)}–${Math.round(((i + 1) / tranches) * 100)} %`,
+    libelle: `${Math.round((i / tranches) * 100)}-${Math.round(((i + 1) / tranches) * 100)} %`,
     ecartMoyen: s.compte ? Math.round(s.ecart / s.compte) : 0,
     compte: s.compte,
   }));

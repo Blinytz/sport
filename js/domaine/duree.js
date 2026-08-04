@@ -22,12 +22,15 @@ export function formaterDuree(millisecondes) {
 }
 
 /**
- * Écart signé, tel qu'il s'affiche à l'écran : `−6:32` d'avance, `+4:21` de
+ * Écart signé, tel qu'il s'affiche à l'écran : `-6:32` d'avance, `+4:21` de
  * retard. Le signe est porté par le texte parce que la couleur seule ne suffit
  * pas à distinguer les deux.
+ *
+ * Trait d'union simple, jamais le signe moins typographique : les tirets longs
+ * sont proscrits de tout ce qui s'affiche.
  */
 export function formaterEcart(millisecondes) {
-  const signe = millisecondes < 0 ? '−' : '+';
+  const signe = millisecondes < 0 ? '-' : '+';
   return `${signe}${formaterDuree(millisecondes)}`;
 }
 

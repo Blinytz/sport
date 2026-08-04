@@ -1,4 +1,4 @@
-# Consignes de travail — Sport
+# Consignes de travail : Sport
 
 À lire avant toute modification. Ces règles viennent du classeur d'origine
 (`Sessions Sport.xlsx`) et des décisions prises avec le propriétaire.
@@ -29,15 +29,20 @@
    forfait ne revalorise jamais une séance déjà courue.
 9. **Le palier atteint le plus haut s'applique, et lui seul.** Les paliers ne
    s'additionnent pas.
-10. **Deux garde-fous, une seule raison** — bâcler ne doit pas rapporter plus
-    que faire : le forfait est versé au prorata des exercices validés, et un
-    seul exercice passé annule tout bonus. Le retard, lui, ne retire jamais
-    rien.
+10. **Deux garde-fous, une seule raison.** Bâcler ne doit pas rapporter plus que
+    faire : le forfait est versé au prorata des exercices validés, et un seul
+    exercice passé annule tout bonus. Le retard, lui, ne retire jamais rien.
 11. **Une récompense se collecte.** Aucun crédit automatique dans le solde.
 12. **Les mouvements d'Éclats sont idempotents** : clé stable par séance, écrite
     au registre avant l'état local.
 13. **Aucun score composite** dans les statistiques. Des mesures brutes,
     rattachables aux séances qui les ont produites.
+14. **Aucun tiret typographique visible.** Les signes « — », « – » et « − » sont
+    proscrits de l'interface et des textes. Remplacer selon le contexte :
+    valeur manquante par « ? » ou un mot, séparateur par « · », « : » ou une
+    virgule, intervalle par un trait d'union simple. C'est pour cela que l'écart
+    s'affiche `-6:32` et non `−6:32`. Les commentaires de code, invisibles,
+    restent libres ; un test garde la règle.
 
 ## Architecture
 
@@ -61,7 +66,7 @@
 - Un commentaire explique **pourquoi**, pas quoi.
 - Toute correction reproductible ajoute ou met à jour un test.
 - Terminer par `node --test` : la suite doit rester entièrement verte.
-- Vérifier dans un navigateur avant de publier — les tests ne voient pas la
+- Vérifier dans un navigateur avant de publier : les tests ne voient pas la
   mise en page, et l'écran de séance se juge à bout de bras.
 
 ## Publication

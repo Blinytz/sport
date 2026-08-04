@@ -11,11 +11,11 @@ des Éclats de l'écosystème.
 
 **Lancer une séance.** L'écran affiche l'exercice en cours et ses répétitions,
 son numéro (`4/21`), le compte à rebours de l'exercice, le temps écoulé, le
-temps théorique restant, et la liste complète des exercices — celui du moment
+temps théorique restant, et la liste complète des exercices : celui du moment
 surligné et centré automatiquement.
 
 **Dire où l'on en est.** L'écart est le temps réellement écoulé moins la somme
-des temps théoriques des exercices déjà passés : `−6:32` en vert si l'on est en
+des temps théoriques des exercices déjà passés : `-6:32` en vert si l'on est en
 avance, `+4:21` en rouge si l'on est en retard. Il se met à jour à chaque
 validation.
 
@@ -44,7 +44,7 @@ permet de payer une séance dure plus qu'une séance simplement longue. Il est
 versé **au prorata des exercices validés** : une séance entièrement validée
 touche le forfait complet, une séance à moitié faite la moitié.
 
-Les **paliers** sont des seuils d'avance sur le temps théorique — par exemple
+Les **paliers** sont des seuils d'avance sur le temps théorique, par exemple
 2 min → 5 ✦, 5 min → 12 ✦, 10 min → 25 ✦. Le palier atteint le plus haut
 s'applique, **et lui seul** : ils ne s'additionnent pas.
 
@@ -61,7 +61,7 @@ Ce sont deux notions distinctes, et c'est volontaire.
 
 Les **répétitions** décrivent le mouvement : `30`, `2min`, `5x2`,
 `(40+40)x2`, `10x2-10x2`. Du texte libre, tel qu'il était dans le classeur
-d'origine — aucun format structuré ne le capturerait sans perte.
+d'origine, aucun format structuré ne le capturerait sans perte.
 
 Le **temps alloué** est le créneau que l'exercice occupe dans la séance, repos
 compris. Trois minutes par défaut, réglable globalement et surchargeable

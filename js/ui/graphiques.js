@@ -209,7 +209,7 @@ export function calendrierActivite(cases, { maxTemps = null } = {}) {
       weekday: 'long', day: 'numeric', month: 'long',
     });
     rect.append(svg('title', {}, [document.createTextNode(
-      jour.seances ? `${date} — ${jour.seances} séance(s)` : date,
+      jour.seances ? `${date} : ${jour.seances} séance(s)` : date,
     )]));
     racine.append(rect);
   });
@@ -244,7 +244,7 @@ export function couronne(parts, { taille = 160 } = {}) {
       transform: 'rotate(-90 60 60)',
     });
     arc.append(svg('title', {}, [document.createTextNode(
-      `${part.libelle} — ${Math.round((part.valeur / total) * 100)} %`,
+      `${part.libelle} : ${Math.round((part.valeur / total) * 100)} %`,
     )]));
     racine.append(arc);
     parcouru += longueur;

@@ -19,8 +19,16 @@ test('formaterDuree passe aux heures au-delà de soixante minutes', () => {
 
 test('formaterDuree ignore le signe : c’est formaterEcart qui le porte', () => {
   assert.equal(formaterDuree(-392000), '6:32');
-  assert.equal(formaterEcart(-392000), '−6:32');
+  assert.equal(formaterEcart(-392000), '-6:32');
   assert.equal(formaterEcart(261000), '+4:21');
+});
+
+test('aucun tiret typographique ne sort du formatage', () => {
+  const interdits = /[—–−]/;
+  for (const ms of [-392000, 0, 261000, -1, 1, 3723000]) {
+    assert.ok(!interdits.test(formaterEcart(ms)), `formaterEcart(${ms})`);
+    assert.ok(!interdits.test(formaterDuree(ms)), `formaterDuree(${ms})`);
+  }
 });
 
 test('sensEcart tolère la seconde près pour ne pas clignoter autour de zéro', () => {
