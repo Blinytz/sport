@@ -8,7 +8,7 @@
  * Incrémenter `CACHE` à chaque changement de la liste des fichiers.
  */
 
-const CACHE = 'sport-v9';
+const CACHE = 'sport-v10';
 
 const FICHIERS = [
   './',
@@ -46,15 +46,31 @@ const FICHIERS = [
   './js/ui/pages/reglages.js',
 ];
 
+/**
+ * Remplit le cache en CONTOURNANT le cache HTTP du navigateur.
+ *
+ * `cache.addAll` passe par lui, et GitHub Pages sert tout avec
+ * `Cache-Control: max-age=600`. Une publication faite moins de dix minutes
+ * après la précédente remplissait donc le cache neuf avec les anciens fichiers,
+ * qui y restaient ensuite indéfiniment. C'est ce qui rendait une mise à jour
+ * invisible malgré la stratégie « réseau d'abord ».
+ */
+async function remplirCache() {
+  const cache = await caches.open(CACHE);
+  await Promise.all(FICHIERS.map(async (fichier) => {
+    try {
+      const reponse = await fetch(new Request(fichier, { cache: 'reload' }));
+      if (reponse.ok) await cache.put(fichier, reponse);
+    } catch {
+      // Un fichier indisponible ne doit pas empêcher l'installation.
+    }
+  }));
+}
+
 self.addEventListener('install', (event) => {
   // On ne prend la main qu'une fois le nouveau cache constitué : sinon la
   // nouvelle version démarrerait avec un cache incomplet.
-  event.waitUntil(
-    caches.open(CACHE)
-      .then((cache) => cache.addAll(FICHIERS))
-      .then(() => self.skipWaiting())
-      .catch(() => self.skipWaiting()),
-  );
+  event.waitUntil(remplirCache().then(() => self.skipWaiting(), () => self.skipWaiting()));
 });
 
 self.addEventListener('activate', (event) => {
@@ -81,8 +97,19 @@ self.addEventListener('fetch', (event) => {
     || url.pathname.endsWith('.css');
 
   if (versLeReseau) {
+    // `cache: 'no-cache'` force une revalidation auprès du serveur. Sans lui,
+    // « réseau d'abord » se contentait du cache HTTP du navigateur, valable dix
+    // minutes, et servait donc l'ancienne version.
+    //
+    // La requête est reconstruite depuis l'URL : une requête de navigation ne
+    // peut pas être clonée avec un autre mode de cache.
+    const requeteFraiche = new Request(url.href, {
+      cache: 'no-cache',
+      credentials: 'same-origin',
+    });
+
     event.respondWith(
-      fetch(event.request)
+      fetch(requeteFraiche)
         .then((reponse) => {
           const copie = reponse.clone();
           caches.open(CACHE).then((cache) => cache.put(event.request, copie)).catch(() => {});

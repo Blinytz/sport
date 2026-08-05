@@ -151,3 +151,29 @@ test('aucun module n’est orphelin : tout est atteignable depuis app.js', async
     assert.ok(atteints.has(module), `${module} n’est importé par personne`);
   }
 });
+
+test('le service worker contourne le cache HTTP du navigateur', async () => {
+  const sw = await lire('sw.js');
+
+  // GitHub Pages sert tout avec `max-age=600`. Sans contournement explicite,
+  // « réseau d'abord » se contente du cache HTTP et sert l'ancienne version.
+  assert.match(sw, /cache: 'reload'/, 'le remplissage du cache doit contourner le cache HTTP');
+  assert.match(sw, /cache: 'no-cache'/, 'la lecture réseau doit revalider auprès du serveur');
+  assert.ok(!sw.includes('cache.addAll('), 'addAll passe par le cache HTTP');
+});
+
+test('la page enregistre le service worker sans passer par le cache HTTP', async () => {
+  const app = await lire('js/app.js');
+  assert.match(app, /updateViaCache: 'none'/);
+});
+
+test('les réglages offrent une sortie de secours contre un cache tenace', async () => {
+  const reglages = await lire('js/ui/pages/reglages.js');
+  assert.match(reglages, /forcerMiseAJour/);
+  assert.match(reglages, /getRegistrations/);
+  assert.match(reglages, /caches\.delete/);
+  // Le stockage des séances ne doit jamais être touché par cette manoeuvre.
+  const corps = reglages.slice(reglages.indexOf('async function forcerMiseAJour'));
+  const fin = corps.indexOf('return el(');
+  assert.ok(!corps.slice(0, fin).includes('localStorage'), 'ne touche pas aux données');
+});

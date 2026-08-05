@@ -180,6 +180,11 @@ if (store.etatIllisible()) {
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(() => { /* hors ligne, sans conséquence */ });
+    // `updateViaCache: 'none'` : le script du service worker lui-même ne doit
+    // jamais venir du cache HTTP, sinon une nouvelle version peut rester
+    // invisible pendant les dix minutes de `max-age` de GitHub Pages.
+    navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
+      .then((inscription) => inscription.update().catch(() => {}))
+      .catch(() => { /* hors ligne, sans conséquence */ });
   });
 }

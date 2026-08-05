@@ -345,6 +345,26 @@ export function pageReglages({ store, registre, finances }) {
       annoncer('Sauvegarde de secours téléchargée.', 'succes');
     }
 
+    /**
+     * Dernier recours contre un cache tenace : on désinscrit le service worker,
+     * on vide ses caches, et on recharge en contournant le cache HTTP. Les
+     * données ne sont PAS touchées : elles vivent dans le stockage local, que
+     * rien ici n'approche.
+     */
+    async function forcerMiseAJour() {
+      try {
+        if (navigator.serviceWorker) {
+          const inscriptions = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(inscriptions.map((i) => i.unregister()));
+        }
+        if (window.caches) {
+          const cles = await caches.keys();
+          await Promise.all(cles.map((c) => caches.delete(c)));
+        }
+      } catch { /* on recharge quand même */ }
+      window.location.replace(`${window.location.pathname}?maj=${Date.now()}#/reglages`);
+    }
+
     return el('section', { class: 'bloc' }, [
       titre(2, 'Données'),
 
@@ -376,6 +396,17 @@ export function pageReglages({ store, registre, finances }) {
         bouton('Importer', () => fichier.click(), { class: 'bouton' }),
         fichier,
         bouton('Réinitialiser', reinitialiser, { class: 'bouton bouton-danger' }),
+      ]),
+
+      el('hr', { class: 'separateur' }),
+      el('p', {
+        class: 'aide',
+        texte: 'Si l’application semble figée sur une ancienne version, forcez la '
+          + 'mise à jour. Vos séances ne sont pas concernées : seul le cache des '
+          + 'fichiers est vidé.',
+      }),
+      div('bloc-actions', [
+        bouton('Forcer la mise à jour', forcerMiseAJour, { class: 'bouton' }),
       ]),
     ]);
   }

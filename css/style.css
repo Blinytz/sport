@@ -1461,6 +1461,8 @@ button.pastille:active { transform: scale(.93); }
   background: color-mix(in srgb, var(--retard) 10%, transparent);
 }
 
+.separateur { border: 0; border-top: 1px solid var(--bordure); margin: 4px 0; }
+
 .formulaire-connexion { display: flex; flex-direction: column; gap: 10px; }
 .registre-connecte { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 
