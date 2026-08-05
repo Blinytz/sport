@@ -41,8 +41,7 @@ export function pageSeance({ store, router, veille }) {
 
   const couronne = anneau({ progression: 0 });
   const rebours = div('rebours', '');
-  const reboursLibelle = span('rebours-libelle', 'restant');
-  const chrono = div('seance-chrono', [couronne, div('chrono-centre', [rebours, reboursLibelle])]);
+  const chrono = div('seance-chrono', [couronne, div('chrono-centre', [rebours])]);
 
   const ecoule = span('mesure-valeur', '0:00');
   const zoneEcart = div('mesure-valeur', []);
@@ -60,6 +59,11 @@ export function pageSeance({ store, router, veille }) {
     enregistrer(annulerDerniereEtape(courante));
   }, { class: 'bouton bouton-discret' });
 
+  // Tout doit tenir sur un écran de téléphone, sans défilement : c'est le
+  // bouton Valider qu'on cherche à garder atteignable en permanence. D'où le
+  // nom et les répétitions sur une seule ligne, l'absence de libellé sous le
+  // compte à rebours, et les commandes placées AVANT la liste des exercices,
+  // qui est la seule zone autorisée à défiler.
   const racine = div('page page-seance', [
     div('seance-entete', [
       bouton('✕', quitter, { class: 'bouton-icone', title: 'Quitter la séance' }),
@@ -67,20 +71,24 @@ export function pageSeance({ store, router, veille }) {
       numero,
     ]),
     div('seance-scene', [
-      div('seance-carte', [nomExercice, repetitions, zonePastilles, notes]),
+      div('seance-carte', [
+        div('seance-ligne-titre', [nomExercice, repetitions]),
+        zonePastilles,
+        notes,
+      ]),
       chrono,
       div('seance-mesures', [
         div('mesure', [span('mesure-etiquette', 'Écoulé'), ecoule]),
-        div('mesure mesure-ecart', [span('mesure-etiquette', 'Avance / retard'), zoneEcart]),
+        div('mesure mesure-ecart', [span('mesure-etiquette', 'Delta'), zoneEcart]),
         div('mesure', [span('mesure-etiquette', 'Reste prévu'), restantTotal]),
       ]),
       zonePalier,
     ]),
-    zoneListe,
     div('seance-commandes', [
       div('commandes-secondaires', [boutonPause, boutonPasser, boutonRetour]),
       boutonValider,
     ]),
+    zoneListe,
   ]);
 
   // ---- Actions ----
@@ -183,10 +191,11 @@ export function pageSeance({ store, router, veille }) {
     ecoule.textContent = formaterDuree(vue.ecoule);
     restantTotal.textContent = formaterDuree(vue.restantTheorique);
 
+    // Le signe et la couleur disent à eux seuls qu'on a dépassé : un libellé
+    // sous le chiffre coûterait une ligne pour ne rien apprendre.
     rebours.textContent = vue.depasse
       ? `+${formaterDuree(-vue.restant)}` : formaterDuree(vue.restant);
     rebours.classList.toggle('rebours-depasse', vue.depasse);
-    reboursLibelle.textContent = vue.depasse ? 'au-delà du prévu' : 'restant';
     couronne.majProgression(vue.progression, vue.depasse);
 
     const sens = sensEcart(vue.ecart);
