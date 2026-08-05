@@ -248,3 +248,73 @@ test('supprimer toutes les sessions ne les fait pas revenir au rechargement', ()
 
   assert.equal(createStore({ storage: stockage }).sessions().length, 0);
 });
+
+// ---- Témoin : un état réellement écrit par la version publiée ----
+//
+// `tests/temoins/etat-v2-publie.json` a été produit en passant par l'API du
+// store de la version publiée (commit ca356c0), avec des ajouts comme ceux
+// qu'on fait depuis le téléphone : deux étiquettes créées, une session ajoutée,
+// un exercice ajouté à une session d'origine et son forfait relevé.
+//
+// Ce fichier ne doit pas être régénéré à la légère : c'est la preuve qu'une
+// mise à jour relit sans perte ce qui existait avant elle.
+
+test('l’état écrit par la version publiée est relu sans perte', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const brut = await readFile(
+    new URL('./temoins/etat-v2-publie.json', import.meta.url), 'utf8',
+  );
+  const stockage = stockageMemoire({ [CLE_ETAT]: brut });
+  const store = createStore({ storage: stockage });
+
+  assert.equal(store.etatIllisible(), false, 'aucun mode dégradé');
+  assert.equal(store.secours(), null, 'aucune mise de côté : la lecture a réussi');
+
+  const parNom = Object.fromEntries(store.sessions().map((s) => [s.nom, s]));
+  assert.deepEqual(Object.keys(parNom).sort(), [
+    'Calisthénie', 'Mobilité du matin', 'Session Alt', 'Session Pull', 'Session Push',
+  ]);
+
+  // La session ajoutée à la main, intacte jusqu'aux notes.
+  const mobilite = parNom['Mobilité du matin'];
+  assert.equal(mobilite.description, 'Ajoutée à la main sur le téléphone');
+  assert.equal(mobilite.recompense.forfait, 15);
+  assert.deepEqual(mobilite.recompense.paliers, [{ minutes: 3, eclats: 4 }]);
+  assert.deepEqual(mobilite.exercices.map((e) => e.nom), ['Chat-vache', 'Fentes marchées']);
+  assert.equal(mobilite.exercices[0].dureeSecondes, 90);
+  assert.equal(mobilite.exercices[0].notes, 'Respirer en cadence');
+  assert.deepEqual(mobilite.exercices[1].musclesPrincipaux, ['jambes', 'fessiers']);
+
+  // L'exercice ajouté à une session d'origine, et son forfait relevé.
+  assert.equal(parNom['Session Push'].exercices.length, 22);
+  assert.equal(parNom['Session Push'].exercices.at(-1).nom, 'Gainage dynamique');
+  assert.equal(parNom['Session Push'].recompense.forfait, 55);
+
+  // Les étiquettes créées à la main, en plus des sept d'origine.
+  const etiquettes = store.etiquettes().map((e) => e.nom);
+  assert.equal(etiquettes.length, 9);
+  assert.ok(etiquettes.includes('Bas du dos'));
+  assert.ok(etiquettes.includes('Fessiers'));
+
+  assert.equal(store.reglages().dureeExerciceDefaut, 150);
+  assert.equal(store.reglages().theme, 'clair');
+});
+
+test('les identifiants ne sont pas régénérés au passage de version', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const brut = await readFile(
+    new URL('./temoins/etat-v2-publie.json', import.meta.url), 'utf8',
+  );
+  const attendu = JSON.parse(brut);
+  const store = createStore({ storage: stockageMemoire({ [CLE_ETAT]: brut }) });
+
+  assert.deepEqual(
+    store.sessions().map((s) => s.id),
+    attendu.sessions.map((s) => s.id),
+    'un identifiant qui change casserait l’historique et les Éclats déjà versés',
+  );
+  assert.deepEqual(
+    store.sessions().flatMap((s) => s.exercices.map((e) => e.id)),
+    attendu.sessions.flatMap((s) => s.exercices.map((e) => e.id)),
+  );
+});
