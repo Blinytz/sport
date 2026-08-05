@@ -8,7 +8,7 @@
  * Incrémenter `CACHE` à chaque changement de la liste des fichiers.
  */
 
-const CACHE = 'sport-v8';
+const CACHE = 'sport-v9';
 
 const FICHIERS = [
   './',

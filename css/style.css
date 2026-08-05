@@ -38,6 +38,12 @@
   --degrade-avance: linear-gradient(135deg, #22d47b, #14b8a6);
   --degrade-or: linear-gradient(135deg, #ffc043, #ff8a3d);
 
+  /* Zones réservées par le téléphone : barre d'état et encoche en haut, barre
+   * gestuelle en bas. Passées par des variables plutôt qu'appelées directement,
+   * afin de pouvoir les simuler et vérifier qu'aucun contenu n'est mordu. */
+  --marge-haute: env(safe-area-inset-top, 0px);
+  --marge-basse: env(safe-area-inset-bottom, 0px);
+
   --rayon: 20px;
   --rayon-petit: 13px;
   --rayon-pastille: 999px;
@@ -108,7 +114,7 @@ ol, ul { margin: 0; padding: 0; list-style: none; }
   justify-content: space-between;
   gap: 12px;
   padding: 10px var(--marge);
-  padding-top: calc(10px + env(safe-area-inset-top));
+  padding-top: calc(10px + var(--marge-haute));
   background: var(--fond-vitre);
   backdrop-filter: blur(18px) saturate(150%);
   -webkit-backdrop-filter: blur(18px) saturate(150%);
@@ -153,7 +159,7 @@ ol, ul { margin: 0; padding: 0; list-style: none; }
 
 #vue {
   padding: var(--marge);
-  padding-bottom: calc(84px + env(safe-area-inset-bottom));
+  padding-bottom: calc(84px + var(--marge-basse));
   max-width: 760px;
   margin: 0 auto;
 }
@@ -191,7 +197,7 @@ body.sans-entete #vue { padding-top: 0; padding-bottom: 0; }
   backdrop-filter: blur(18px) saturate(150%);
   -webkit-backdrop-filter: blur(18px) saturate(150%);
   border-top: 1px solid var(--bordure);
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: var(--marge-basse);
   z-index: 40;
 }
 
@@ -402,7 +408,7 @@ body.sans-entete #vue { padding-top: 0; padding-bottom: 0; }
   align-items: flex-end;
   justify-content: center;
   padding: 16px;
-  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  padding-bottom: calc(16px + var(--marge-basse));
   z-index: 100;
   animation: fondu 160ms ease;
 }
@@ -661,10 +667,14 @@ button.pastille:active { transform: scale(.93); }
   gap: 10px;
   height: 100dvh;
   overflow-y: auto;
-  margin: calc(-1 * var(--marge));
+  /* Pleine largeur seulement : une marge négative EN HAUT remonterait le
+   * contenu de 18 px et le ferait passer sous la barre d'état, que le
+   * rembourrage de zone sûre ne compenserait alors qu'en partie. C'est
+   * exactement ce qui mordait la croix et le compteur d'exercices. */
+  margin: 0 calc(-1 * var(--marge));
   padding: 10px var(--marge);
-  padding-top: calc(10px + env(safe-area-inset-top));
-  padding-bottom: calc(10px + env(safe-area-inset-bottom));
+  padding-top: calc(10px + var(--marge-haute));
+  padding-bottom: calc(10px + var(--marge-basse));
 }
 
 
