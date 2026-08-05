@@ -344,6 +344,38 @@ body.sans-entete #vue { padding-top: 0; padding-bottom: 0; }
 
 /* ---- Annonces et modales ---- */
 
+/* Alerte de données : persistante, et hors de portée des annonces ordinaires. */
+#alerte-donnees {
+  position: sticky;
+  top: 0;
+  z-index: 70;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 10px;
+  padding: 14px 16px;
+  border-radius: var(--rayon-petit);
+  background: var(--retard);
+  color: #fff;
+  font-size: .88rem;
+  line-height: 1.45;
+  box-shadow: var(--ombre);
+}
+
+#alerte-donnees[hidden] { display: none; }
+#alerte-donnees strong { font-size: .95rem; }
+
+.alerte-lien {
+  align-self: flex-start;
+  margin-top: 4px;
+  padding: 7px 14px;
+  border-radius: var(--rayon-pastille);
+  background: rgba(255, 255, 255, .95);
+  color: var(--retard);
+  font-weight: 750;
+  text-decoration: none;
+}
+
 #annonces { position: sticky; top: 0; z-index: 60; }
 
 .annonce {
@@ -1409,6 +1441,16 @@ button.pastille:active { transform: scale(.93); }
 
 .rang-etiquette { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .rang-etiquette-usages { flex: 1; font-size: .79rem; color: var(--texte-faible); }
+.bloc-secours {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  border-radius: var(--rayon-petit);
+  border: 1.5px solid var(--retard);
+  background: color-mix(in srgb, var(--retard) 10%, transparent);
+}
+
 .formulaire-connexion { display: flex; flex-direction: column; gap: 10px; }
 .registre-connecte { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 

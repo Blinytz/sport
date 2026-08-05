@@ -53,6 +53,25 @@
     s'affiche `-6:32` et non `−6:32`. Les commentaires de code, invisibles,
     restent libres ; un test garde la règle.
 
+## Les données de l'utilisateur passent avant tout
+
+Les séances, exercices et étiquettes créés à la main ne se remplacent jamais.
+Trois règles rendent cela vrai, et `tests/persistance.test.mjs` les verrouille.
+
+- **Le contenu d'amorçage ne s'installe qu'en l'absence totale de données.** Une
+  sauvegarde présente mais illisible ne le mérite pas : la remplacer par les
+  quatre séances d'origine détruirait tout.
+- **Une lecture échouée met le store en LECTURE SEULE.** La sauvegarde brute est
+  copiée sous `sport_etat_secours` sans être modifiée, une alerte persistante
+  s'affiche, et rien n'est écrit tant que l'utilisateur n'a pas réimporté. Sans
+  ce refus, la première écriture après une lecture manquée effacerait tout.
+- **`migrer` conserve les champs inconnus et lève une erreur sur une sauvegarde
+  inutilisable.** Il ne renvoie jamais un état vide : jeter des données n'est pas
+  sa décision. Une liste d'étiquettes vide est un choix, pas un manque.
+
+En corollaire : ne jamais changer le format d'un champ sans convertir l'ancien,
+et ne jamais ajouter de chemin qui écrive avant d'avoir relu.
+
 ## Architecture
 
 - `js/domaine/` ne touche **jamais** au DOM et ne connaît ni `window` ni

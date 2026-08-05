@@ -332,8 +332,40 @@ export function pageReglages({ store, registre, finances }) {
       peindre();
     }
 
+    /** Télécharge la sauvegarde mise à l'abri, telle qu'elle était. */
+    function recupererSecours() {
+      const brut = store.secours();
+      if (!brut) return;
+      const lien = el('a', {
+        href: URL.createObjectURL(new Blob([brut], { type: 'application/json' })),
+        download: `sport-secours-${new Date().toISOString().slice(0, 10)}.json`,
+      });
+      lien.click();
+      URL.revokeObjectURL(lien.href);
+      annoncer('Sauvegarde de secours téléchargée.', 'succes');
+    }
+
     return el('section', { class: 'bloc' }, [
       titre(2, 'Données'),
+
+      store.etatIllisible()
+        ? div('bloc-secours', [
+          el('p', {
+            class: 'aide',
+            texte: 'La sauvegarde présente sur cet appareil n’a pas pu être relue. '
+              + 'Elle a été mise de côté sans être modifiée, et l’application '
+              + 'n’écrit plus rien pour ne pas l’écraser. Téléchargez-la, puis '
+              + 'réimportez-la ici une fois réparée.',
+          }),
+          div('bloc-actions', [
+            bouton('Télécharger la sauvegarde de secours', recupererSecours, {
+              class: 'bouton bouton-primaire',
+              disabled: !store.secours(),
+            }),
+          ]),
+        ])
+        : null,
+
       el('p', {
         class: 'aide',
         texte: 'Tout est stocké dans ce navigateur. Exportez régulièrement : '

@@ -37,6 +37,15 @@ export function normaliserExercice(brut, identifiant) {
 }
 
 export function normaliserSession(brut, identifiant, recompenseDefaut = RECOMPENSE_DEFAUT) {
+  // Une session neuve n'a pas encore d'exercices : c'est légitime. En revanche,
+  // un champ `exercices` présent mais qui n'est pas une liste signale une
+  // sauvegarde abîmée. On refuse plutôt que de renvoyer une session vide, ce
+  // qui effacerait le travail de l'utilisateur sans un mot.
+  const exercices = brut?.exercices;
+  if (exercices != null && !Array.isArray(exercices)) {
+    throw new Error(`Exercices illisibles pour la session « ${brut?.nom ?? '?'} ».`);
+  }
+
   return {
     ...brut,
     id: brut?.id || identifiant(),
@@ -45,8 +54,7 @@ export function normaliserSession(brut, identifiant, recompenseDefaut = RECOMPEN
     // Chaque session porte son propre barème d'Éclats. Les réglages ne servent
     // qu'à préremplir celles qui n'en ont pas encore.
     recompense: normaliserRecompense(brut?.recompense || recompenseDefaut),
-    exercices: (Array.isArray(brut?.exercices) ? brut.exercices : [])
-      .map((e) => normaliserExercice(e, identifiant)),
+    exercices: (exercices || []).map((e) => normaliserExercice(e, identifiant)),
   };
 }
 

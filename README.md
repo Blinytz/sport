@@ -104,8 +104,20 @@ Ces données vous appartiennent ensuite : l'application ne les réécrit jamais.
 ## Données
 
 Tout est stocké dans le navigateur (`localStorage`, clé `sport_etat_v1`).
-Export et import JSON complets dans les réglages. Vider les données du site
-effacerait les séances : exportez régulièrement.
+Export et import JSON complets dans les réglages.
+
+**Une mise à jour ne touche pas à vos données.** Les séances, exercices et
+étiquettes que vous créez survivent aux nouvelles versions, y compris les
+réglages qu'une version ne connaîtrait pas encore. Le contenu d'amorçage ne
+s'installe qu'au tout premier lancement, quand il n'y a rien du tout.
+
+Si une sauvegarde devient illisible, l'application ne la remplace pas : elle la
+met de côté intacte, passe en lecture seule, et vous prévient. Vous pouvez alors
+la télécharger depuis les réglages et la réimporter. Rien n'est écrit tant que
+vous n'avez pas décidé.
+
+Cela ne protège pas de tout : vider les données du site depuis le navigateur
+efface le stockage lui-même. Exportez de temps en temps.
 
 Seuls les mouvements d'Éclats vivent côté serveur. Ce que l'application en
 garde localement est un miroir confirmé, pour ne jamais recompter un gain.

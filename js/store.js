@@ -13,6 +13,8 @@ import { RECOMPENSE_DEFAUT, normaliserRecompense } from './domaine/recompense.js
 import { DUREE_EXERCICE_DEFAUT, bornerDuree } from './domaine/duree.js';
 
 export const CLE_ETAT = 'sport_etat_v1';
+/** Copie intacte d'une sauvegarde qu'on n'a pas su relire. Jamais écrasée. */
+export const CLE_SECOURS = 'sport_etat_secours';
 export const VERSION_ETAT = 2;
 
 export const REGLAGES_DEFAUT = {
@@ -47,26 +49,48 @@ export function createStore({ storage, cle = CLE_ETAT } = {}) {
     || (typeof globalThis !== 'undefined' && globalThis.localStorage)
     || memoryStorage();
 
+  // Vrai tant que la lecture a réussi. À faux, le store devient EN LECTURE
+  // SEULE : il n'écrira rien par-dessus des données qu'il n'a pas su lire.
+  let lectureSaine = true;
   let etat = lire();
   const abonnes = new Set();
 
+  /**
+   * Charge l'état.
+   *
+   * Distinction capitale : l'absence de données est un premier lancement, et
+   * mérite le contenu d'amorçage. Des données PRÉSENTES mais illisibles ne le
+   * méritent pas — les remplacer par les quatre séances d'origine détruirait
+   * tout ce que l'utilisateur a créé. On les met alors de côté intactes, et on
+   * refuse d'écrire jusqu'à ce que quelqu'un ait regardé.
+   */
   function lire() {
+    const brut = store.getItem(cle);
+    if (!brut) return etatInitial();
+
     try {
-      const brut = store.getItem(cle);
-      if (!brut) return etatInitial();
       return migrer(JSON.parse(brut));
     } catch {
+      lectureSaine = false;
+      try { store.setItem(CLE_SECOURS, brut); } catch { /* stockage plein */ }
       return etatInitial();
     }
   }
 
   function ecrire() {
+    if (!lectureSaine) return;
     store.setItem(cle, JSON.stringify(etat));
     for (const f of abonnes) f(etat);
   }
 
   function abonner(f) { abonnes.add(f); return () => abonnes.delete(f); }
   function instantane() { return etat; }
+
+  /** L'état enregistré était présent mais illisible : rien ne sera écrit. */
+  function etatIllisible() { return !lectureSaine; }
+
+  /** La sauvegarde brute mise à l'abri, telle quelle, pour être récupérée. */
+  function secours() { return store.getItem(CLE_SECOURS); }
 
   /** Toute modification passe par ici : un seul point d'écriture. */
   function transformer(f) {
@@ -223,16 +247,28 @@ export function createStore({ storage, cle = CLE_ETAT } = {}) {
     if (!donnees || !Array.isArray(donnees.sessions)) {
       throw new Error('Sauvegarde illisible : aucune session trouvée.');
     }
-    transformer(() => migrer(donnees));
+    // `migrer` est appelé AVANT toute affectation : une sauvegarde refusée
+    // laisse l'état en place au lieu de le remplacer à moitié.
+    const propre = migrer(donnees);
+    // Importer une sauvegarde valide est justement la façon de sortir d'un état
+    // illisible : l'écriture redevient donc possible.
+    lectureSaine = true;
+    transformer(() => propre);
     return etat;
   }
 
-  function reinitialiser() { transformer(() => etatInitial()); }
+  /** Repartir de zéro, à la demande explicite de l'utilisateur. */
+  function reinitialiser() {
+    lectureSaine = true;
+    transformer(() => etatInitial());
+  }
 
   return {
     instantane,
     abonner,
     transformer,
+    etatIllisible,
+    secours,
     sessions,
     session,
     enregistrerSession,
@@ -258,8 +294,23 @@ export function createStore({ storage, cle = CLE_ETAT } = {}) {
   };
 }
 
-/** Complète une sauvegarde ancienne ou partielle sans jamais perdre de données. */
+/**
+ * Complète une sauvegarde ancienne ou partielle sans jamais perdre de données.
+ *
+ * Deux principes. Les champs inconnus sont CONSERVÉS : une version antérieure
+ * peut relire un état écrit par une plus récente sans l'amputer. Et une
+ * sauvegarde structurellement inutilisable fait LEVER une erreur au lieu de
+ * renvoyer un état vide : c'est l'appelant qui décide alors de mettre les
+ * données de côté, jamais cette fonction de les jeter.
+ */
 export function migrer(donnees) {
+  if (donnees == null || typeof donnees !== 'object' || Array.isArray(donnees)) {
+    throw new Error('Sauvegarde illisible : ce n’est pas un état.');
+  }
+  if (!Array.isArray(donnees.sessions)) {
+    throw new Error('Sauvegarde illisible : liste des sessions absente.');
+  }
+
   const base = etatInitial();
   const liste = (v, defaut = []) => (Array.isArray(v) ? v : defaut);
 
@@ -280,10 +331,12 @@ export function migrer(donnees) {
     ...base,
     ...donnees,
     version: VERSION_ETAT,
-    sessions: liste(donnees.sessions).map((s) => normaliserSession(
-      s, identifiant, s.recompense ? s.recompense : forfaitRepris(s),
+    sessions: donnees.sessions.map((s) => normaliserSession(
+      s, identifiant, s?.recompense ? s.recompense : forfaitRepris(s || {}),
     )),
-    etiquettes: liste(donnees.etiquettes).length ? donnees.etiquettes : base.etiquettes,
+    // Une liste d'étiquettes VIDE est un choix de l'utilisateur, pas un manque :
+    // on ne ressuscite les sept d'origine que si le champ est absent.
+    etiquettes: Array.isArray(donnees.etiquettes) ? donnees.etiquettes : base.etiquettes,
     historique: liste(donnees.historique),
     mouvements: liste(donnees.mouvements),
     seanceEnCours: donnees.seanceEnCours || null,

@@ -149,6 +149,35 @@ construireNavigation();
 router.demarrer();
 solde.rafraichir();
 
+/**
+ * Un état illisible met le store en lecture seule pour ne rien écraser. Il faut
+ * le dire fort et le laisser affiché : sans avertissement, l'utilisateur verrait
+ * les quatre séances d'origine et croirait ses données perdues, alors qu'elles
+ * sont intactes.
+ *
+ * Cette alerte a sa propre zone, hors de celle des annonces : un message de
+ * confirmation ordinaire ne doit pas pouvoir l'effacer.
+ */
+if (store.etatIllisible()) {
+  const zone = document.getElementById('alerte-donnees');
+  zone.hidden = false;
+  zone.replaceChildren(
+    Object.assign(document.createElement('strong'), {
+      textContent: 'Sauvegarde illisible',
+    }),
+    Object.assign(document.createElement('span'), {
+      textContent: 'Vos séances sont mises de côté, intactes. L’application '
+        + 'n’enregistre plus rien pour ne pas les écraser. Récupérez-les dans '
+        + 'Réglages, puis réimportez-les.',
+    }),
+    Object.assign(document.createElement('a'), {
+      href: '#/reglages',
+      className: 'alerte-lien',
+      textContent: 'Aller aux Réglages',
+    }),
+  );
+}
+
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js').catch(() => { /* hors ligne, sans conséquence */ });
